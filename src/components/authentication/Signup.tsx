@@ -5,6 +5,20 @@ import { Box, Paper, TextField, Button, Stack, Typography } from "@mui/material"
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../common/Loader";
 
+type FormData = {
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type Step = {
+  key: keyof FormData; // 👈 restrict to valid keys
+  type?: string;
+  label: string;
+};
+
 export default function ChatSignup() {
   const [step, setStep] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -231,7 +245,7 @@ export default function ChatSignup() {
                           variant="outlined"
                           size="small"
                           type={steps[step].type || "text"}
-                          value={formData[steps[step].key]}
+                          value={steps[step].type || "text"}
                           onChange={(e) =>
                             setFormData({ ...formData, [steps[step].key]: e.target.value })
                           }
@@ -263,7 +277,7 @@ export default function ChatSignup() {
                           }}
                           onClick={handleNext}
                           disabled={
-                            !formData[steps[step].key].trim() ||
+                            !steps[step].key.trim() ||
                             (steps[step].key === "confirmPassword" &&
                               formData.confirmPassword !== formData.password)
                           }
