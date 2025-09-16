@@ -32,9 +32,9 @@ export default function Navbar() {
       </Typography>
       <List>
         {navItems.map((item) => (
-          <ListItem button key={item}>
+          <Box key={item}>
             <ListItemText primary={item} />
-          </ListItem>
+          </Box>
         ))}
         <ListItem>
           <Button fullWidth variant="contained" sx={{ my: 1 }}>

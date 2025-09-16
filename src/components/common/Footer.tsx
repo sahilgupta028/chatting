@@ -20,7 +20,7 @@ export default function Footer() {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           {/* Brand */}
-          <Grid item xs={12} md={4}>
+          <Box>
             <Box display="flex" alignItems="center" mb={2}>
               <ChatIcon sx={{ mr: 1, fontSize: 30 }} />
               <Typography variant="h6" fontWeight="bold">
@@ -31,10 +31,10 @@ export default function Footer() {
               A modern, secure, and lightning-fast chat platform built with
               Next.js & Material UI.
             </Typography>
-          </Grid>
+          </Box>
 
           {/* Quick Links */}
-          <Grid item xs={12} md={4}>
+          <Box>
             <Typography variant="h6" gutterBottom fontWeight="bold">
               Quick Links
             </Typography>
@@ -50,10 +50,10 @@ export default function Footer() {
             <Typography variant="body2" sx={{ cursor: "pointer" }}>
               About
             </Typography>
-          </Grid>
+          </Box>
 
           {/* Social Media */}
-          <Grid item xs={12} md={4}>
+          <Box>
             <Typography variant="h6" gutterBottom fontWeight="bold">
               Follow Us
             </Typography>
@@ -71,7 +71,7 @@ export default function Footer() {
                 <LinkedInIcon />
               </IconButton>
             </Box>
-          </Grid>
+          </Box>
         </Grid>
 
         {/* Bottom Bar */}

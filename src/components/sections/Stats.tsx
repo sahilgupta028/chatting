@@ -65,7 +65,7 @@ export default function StatsSection() {
 
       <Grid container spacing={4} justifyContent="center">
         {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.id}>
+          <Box key={stat.id}>
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +114,7 @@ export default function StatsSection() {
                 </Stack>
               </Paper>
             </motion.div>
-          </Grid>
+          </Box>
         ))}
       </Grid>
     </Box>

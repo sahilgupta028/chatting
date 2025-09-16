@@ -65,7 +65,7 @@ export default function FeaturesSection() {
       {/* Feature Cards */}
       <Grid container spacing={4} justifyContent="center">
         {features.map((feature, index) => (
-          <Grid item xs={12} sm={6} md={3} key={feature.id}>
+          <Box key={feature.id}>
             <motion.div
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -113,7 +113,7 @@ export default function FeaturesSection() {
                 </Stack>
               </Paper>
             </motion.div>
-          </Grid>
+          </Box>
         ))}
       </Grid>
     </Box>
