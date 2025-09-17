@@ -3,8 +3,10 @@
 
 import { Box, Typography, Button, Stack, Paper, Dialog } from "@mui/material";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SignupModal from "../authentication/Signup";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const messages = [
   { id: 1, text: "Hey 👋, welcome to ChatPro!" },
@@ -14,6 +16,16 @@ const messages = [
 
 export default function HeroSection() {
   const [openSignup, setOpenSignup] = useState(false);
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // ✅ If session exists, redirect to /chat
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push("/chat");
+    }
+  }, [status, session, router]);
 
   return (
     <Box

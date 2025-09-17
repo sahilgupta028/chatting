@@ -2,6 +2,9 @@
 import Footer from "@/components/common/Footer";
 import Navbar from "@/components/common/Navbar";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { SessionProvider } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 const theme = createTheme({
   palette: {
@@ -16,12 +19,18 @@ const theme = createTheme({
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const hideLayout =
+    pathname?.startsWith("/chat");
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
+      <Toaster position="top-right" reverseOrder={false} />
+      <SessionProvider>
+      {!hideLayout && <Navbar />}
       {children}
-      <Footer />
+      {!hideLayout && <Footer />}
+      </SessionProvider>
     </ThemeProvider>
   );
 }

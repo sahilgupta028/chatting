@@ -1,24 +1,96 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // or mysql/sqlite
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  fullName       String
-  email          String   @unique
-  phone          String
-  password       String
-  createdAt      DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  email     String    @unique
+  phone     String    @unique
+  password  String
+  avatarUrl String? // profile pic
+  bio       String? // status message
+  isOnline  Boolean   @default(false)
+  lastSeen  DateTime? // last active
+  createdAt DateTime  @default(now())
+
+  // Relations
+  sentRequests     FriendRequest[] @relation("SentRequests")
+  receivedRequests FriendRequest[] @relation("ReceivedRequests")
+
+  friendships Friendship[] @relation("UserFriendships")
+  friendOf    Friendship[] @relation("FriendOf")
+
+  messages        Message[]    @relation("UserMessages")
+  chatMemberships ChatMember[] @relation("ChatMemberships")
 }
 
+model FriendRequest {
+  id        Int           @id @default(autoincrement())
+  fromId    Int
+  toId      Int
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+
+  from User @relation("SentRequests", fields: [fromId], references: [id])
+  to   User @relation("ReceivedRequests", fields: [toId], references: [id])
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Friendship {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  friendId  Int
+  createdAt DateTime @default(now())
+
+  user   User @relation("UserFriendships", fields: [userId], references: [id])
+  friend User @relation("FriendOf", fields: [friendId], references: [id])
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  name      String? // For groups
+  isGroup   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  messages Message[]
+  members  ChatMember[] @relation("ChatMemberships")
+}
+
+model ChatMember {
+  id     Int      @id @default(autoincrement())
+  userId Int
+  chatId Int
+  role   ChatRole @default(MEMBER)
+
+  user User @relation("ChatMemberships", fields: [userId], references: [id])
+  chat Chat @relation("ChatMemberships", fields: [chatId], references: [id])
+}
+
+enum ChatRole {
+  MEMBER
+  ADMIN
+  OWNER
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  senderId  Int
+  content   String?
+  fileUrl   String? // images, docs, etc.
+  createdAt DateTime @default(now())
+
+  sender User @relation("UserMessages", fields: [senderId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id])
+}

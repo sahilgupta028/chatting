@@ -11,19 +11,34 @@ import {
   List,
   ListItem,
   ListItemText,
+  Dialog,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChatIcon from "@mui/icons-material/Chat";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import ChatLogin from "../authentication/Login";
 
 const navItems = ["Home", "Features", "Pricing", "About"];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
+  const [openSignin, setOpenSignin] = useState(false);
+  const router = useRouter();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  // ✅ Close modal and redirect after successful login
+  useEffect(() => {
+    if (session) {
+      setOpenSignin(false);
+      router.push("/chat"); // go to chat page after login
+    }
+  }, [session, router]);
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
@@ -36,16 +51,37 @@ export default function Navbar() {
             <ListItemText primary={item} />
           </Box>
         ))}
-        <ListItem>
-          <Button fullWidth variant="contained" sx={{ my: 1 }}>
-            Login
-          </Button>
-        </ListItem>
-        <ListItem>
-          <Button fullWidth variant="outlined">
-            Sign Up
-          </Button>
-        </ListItem>
+
+        {session ? (
+          <ListItem>
+            <Button
+              fullWidth
+              variant="contained"
+              color="error"
+              onClick={() => signOut()}
+            >
+              Sign Out
+            </Button>
+          </ListItem>
+        ) : (
+          <>
+            <ListItem>
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{ my: 1 }}
+                onClick={() => setOpenSignin(true)}
+              >
+                Sign In
+              </Button>
+            </ListItem>
+            <ListItem>
+              <Button fullWidth variant="outlined">
+                Sign Up
+              </Button>
+            </ListItem>
+          </>
+        )}
       </List>
     </Box>
   );
@@ -65,18 +101,46 @@ export default function Navbar() {
           </Typography>
 
           {/* Desktop Menu */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}>
+          <Box
+            sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
+          >
             {navItems.map((item) => (
               <Button key={item} sx={{ color: "#fff", mx: 1 }}>
                 {item}
               </Button>
             ))}
-            <Button variant="contained" sx={{ ml: 2, bgcolor: "white", color: "#1976d2", fontWeight: "bold" }}>
-              Login
-            </Button>
-            <Button variant="outlined" sx={{ ml: 1, borderColor: "white", color: "white" }}>
-              Sign Up
-            </Button>
+
+            {session ? (
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ ml: 2 }}
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  sx={{
+                    ml: 2,
+                    bgcolor: "white",
+                    color: "#1976d2",
+                    fontWeight: "bold",
+                  }}
+                  onClick={() => setOpenSignin(true)} // ✅ open login modal
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outlined"
+                  sx={{ ml: 1, borderColor: "white", color: "white" }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Box>
 
           {/* Mobile Menu Button */}
@@ -100,6 +164,16 @@ export default function Navbar() {
       >
         {drawer}
       </Drawer>
+
+      {/* ✅ Login Modal */}
+      <Dialog
+        open={openSignin}
+        onClose={() => setOpenSignin(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <ChatLogin />
+      </Dialog>
     </>
   );
 }

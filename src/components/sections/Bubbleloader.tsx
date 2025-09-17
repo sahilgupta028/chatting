@@ -1,41 +1,75 @@
-// components/BubbleLoader.tsx
+// components/InfinityRibbonLoader.tsx
 "use client";
 
 import React from "react";
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
 
-export default function BubbleLoader({ size = 16, color = "#6366f1", gap = 8 }: { size?: number; color?: string; gap?: number }) {
+export default function InfinityRibbonLoader({
+  size = 12,
+  color1 = "#6366f1",
+  color2 = "#ec4899",
+  gap = 10,
+  count = 8,
+}: {
+  size?: number;
+  color1?: string;
+  color2?: string;
+  gap?: number;
+  count?: number;
+}) {
+  const bubbles = Array.from({ length: count });
+
   return (
     <Box
       sx={{
+        position: "relative",
+        width: 100,
+        height: 50,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        gap: gap,
-        height: 50,
       }}
     >
-      {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          style={{
-            width: size,
-            height: size,
-            borderRadius: "50%",
-            backgroundColor: color,
-          }}
-          animate={{
-            y: [0, -12, 0],
-          }}
-          transition={{
-            duration: 0.6,
-            repeat: Infinity,
-            delay: i * 0.2,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
+      {bubbles.map((_, i) => {
+        const delay = (i / count) * 1.2; // stagger start times
+        return (
+          <motion.div
+            key={i}
+            style={{
+              position: "absolute",
+              width: size,
+              height: size,
+              borderRadius: "50%",
+              background: `linear-gradient(45deg, ${color1}, ${color2})`,
+              boxShadow: `0 0 10px ${color1}, 0 0 20px ${color2}`,
+            }}
+            animate={{
+              x: [
+                0,
+                30 * Math.sin((i * Math.PI) / 4),
+                60 * Math.sin((i * Math.PI) / 2),
+                30 * Math.sin((i * Math.PI) / 4),
+                0,
+              ],
+              y: [
+                0,
+                20 * Math.cos((i * Math.PI) / 4),
+                0,
+                -20 * Math.cos((i * Math.PI) / 4),
+                0,
+              ],
+            }}
+            transition={{
+              repeat: Infinity,
+              repeatType: "loop",
+              duration: 2.2,
+              ease: "easeInOut",
+              delay,
+            }}
+          />
+        );
+      })}
     </Box>
   );
 }

@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { Box, Paper, TextField, Button, Stack, Typography } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../common/Loader";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import InfinityRibbonLoader from "../sections/Bubbleloader";
 
 type FormData = {
   fullName: string;
@@ -24,6 +27,7 @@ export default function ChatSignup() {
   const [completed, setCompleted] = useState(false);
   const [botTyping, setBotTyping] = useState(true);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -64,11 +68,23 @@ export default function ChatSignup() {
 
     if (!response.ok) {
       console.error("Registration failed:", data.message);
-      alert(data.message);
     } else {
       console.log("Registered:", data);
-      alert(`Welcome, ${formData.fullName}! Your username is ${data.username}`);
     }
+
+    const loginResult = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        password: formData.password,
+      });
+
+      if (!loginResult?.error) {
+        router.push("/chat"); // redirect to chat page
+      } else {
+        alert("Login failed: " + loginResult.error);
+      }
   } catch (err) {
     console.error("Error:", err);
     alert("Server error");
@@ -123,6 +139,23 @@ export default function ChatSignup() {
 
               <Box sx={{ minHeight: 400, display: "flex", flexDirection: "column", gap: 2 }}>
                 <AnimatePresence initial={false}>
+                  {/* Loader overlay */}
+                {loading && (
+                <Box
+                  sx={{
+                  position: "absolute",
+                  inset: 0,
+                  bgcolor: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 5,
+                  zIndex: 10,
+                   }}
+                  >
+                <InfinityRibbonLoader />
+                </Box>
+                )}
                   {completed ? (
                     <motion.div
                       key="completed"
@@ -153,15 +186,9 @@ export default function ChatSignup() {
                           zIndex: 10,
                         }}
                         >
-                     <Loader /> {/* Your loader component */}
+                     <InfinityRibbonLoader /> {/* Your loader component */}
                      </Box>
                     )}
-                        <Typography variant="h6" fontWeight="bold">
-                          🎉 Welcome, {formData.fullName}!
-                        </Typography>
-                        <Typography variant="body2" mt={1}>
-                          Your account has been successfully created.
-                        </Typography>
                       </Paper>
 
                       <Button
@@ -245,9 +272,12 @@ export default function ChatSignup() {
                           variant="outlined"
                           size="small"
                           type={steps[step].type || "text"}
-                          value={steps[step].type || "text"}
+                          value={formData[steps[step].key as keyof FormData]}
                           onChange={(e) =>
-                            setFormData({ ...formData, [steps[step].key]: e.target.value })
+                          setFormData({
+                          ...formData,
+                         [steps[step].key as keyof FormData]: e.target.value,
+                          })
                           }
                           sx={{
                             mt: 1,
